@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <errno.h> 
 #include <string.h>
+#include <stdbool.h>
 
 #define STR_MAX 31
 #define DICT_SIZE 500
@@ -14,12 +15,12 @@ typedef struct{
 	string records[DICT_SIZE];//TODO: pensar en un mejor nombre
 	size_t elementos;
 }dict;
-inline void dict_init(dict* toinit){ toinit->size=0; }
+inline void dict_init(dict* toinit){ toinit->elementos=0; }
 void dict_sort( dict* diccionario);//TODO
 
 FILE *open_file(const char *filename, const char *mode);//funciona como fopen, pero maneja los errores
 int close_file(FILE *fptr);//funciona como fclose, pero maneja los errores
-bool str_isnumORispunct(const char *cadena);
+bool str_isnumORispunct(const char *cadena);//TODO
 
 int main()
 {
@@ -27,9 +28,10 @@ int main()
 	FILE *entrada, *salida;
 	dict diccionario;
 	
-	dict_init( diccionario); //inicialización de diccionario
+	dict_init( &diccionario); //inicialización de diccionario
 
-	printf("Nombre de archivo con extensión: ")
+	printf("Nombre de archivo con extensión: ");
+	snprintf(
 	scanf("%STR_MAXs" , nombre_de_archivo );
 
 	entrada= open_file(nombre_de_archivo, "r" );
@@ -50,7 +52,7 @@ int main()
 /*
 	//ordena las palabras de forma lexicográfica, así las palabras iguales terminan juntas y facilita el conteo
 	//	si el algoritmo de ordenamiento es de complejidad O(nlogn), entonces esto propociona un método eficiente de conteo
-	sort_dict( dict );
+	dic_sort( &diccionario);
 
 	//cuenta  ocurrencias;
 	//escribe en archivo de resultados
@@ -67,7 +69,7 @@ FILE *open_file(const char *filename, const char *mode)
 	FILE *fptr;
 	errno=0;
 
-	if( (fptr=fopen( file_name, mode))== NULL )
+	if( (fptr=fopen( filename, mode))== NULL )
 		fprintf(stderr, "el archivo %s no pudo abrirse \n\terror: %s\n",filename, strerror(errno) ); 
 	return fptr;
 }
@@ -78,7 +80,7 @@ int close_file(FILE *fptr)
 	int s=0;
 	if( fptr == NULL )//ignora este caso
 		return 0;
-	s=fclose(f);
+	s=fclose(fptr);
 	if( s== EOF )
 		perror("error al cerrar");
 	return s;
