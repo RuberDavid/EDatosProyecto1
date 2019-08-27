@@ -1,3 +1,6 @@
+//no sirve scanf con macros
+//	posible solución: usar snprintf para pasar formato
+//	solución probisional: numero mágicos
 #include <stdio.h>
 #include <errno.h> 
 #include <string.h>
@@ -8,14 +11,13 @@
 
 typedef struct{
 	char str[STR_MAX];
-	size_t size;
 }string;
 
 typedef struct{
-	string records[DICT_SIZE];//TODO: pensar en un mejor nombre
+	string palabras[DICT_SIZE];//TODO: pensar en un mejor nombre
 	size_t elementos;
 }dict;
-inline void dict_init(dict* toinit){ toinit->elementos=0; }
+void dict_init(dict* toinit){ toinit->elementos=0; }
 void dict_sort( dict* diccionario);//TODO
 
 FILE *open_file(const char *filename, const char *mode);//funciona como fopen, pero maneja los errores
@@ -24,31 +26,35 @@ bool str_isnumORispunct(const char *cadena);//TODO
 
 int main()
 {
-	char *nombre_de_archivo;
+	char nombre_de_archivo[STR_MAX];
 	FILE *entrada, *salida;
+//	char *format;//TODO, formato de entrada
 	dict diccionario;
 	
+//	snprintf();//inicialización del formato
 	dict_init( &diccionario); //inicialización de diccionario
 
 	printf("Nombre de archivo con extensión: ");
-	snprintf(
-	scanf("%STR_MAXs" , nombre_de_archivo );
+	scanf("%31s" , nombre_de_archivo );
 
 	entrada= open_file(nombre_de_archivo, "r" );
 	salida= open_file("Resultados.txt", "w" );
 	
 	//lee palabras del archivo en un arreglo de strings
-	for(size_t i=0; i< DICT_SIZE  && !feof(entrada) ; /*incremento dentro del if*/)
+	while( diccionario.elementos < DICT_SIZE  && !feof(entrada) ) /*incremento dentro del if*/
 	{
-		char *palabra;
-		fscanf(entrada, "%STR_MAXs", palabra);//TODO: revisar si es suficiente para incluir '\0'
-		if( !str_isnumORispunct(palabra) )//no inserta números o signos de puntuación
+		char palabra[STR_MAX];
+		fscanf(entrada, "%31s", palabra);//TODO: revisar si es suficiente para incluir '\0'
+	//TODO	if( !str_isnumORispunct(palabra) )//limpia entrada: TODO
 		{
-			strcpy(diccionario.records[i].str, palabra);
-			diccionario.records[i].size= strlen( diccionario.records[i].str );
-			i++;
+			strcpy(diccionario.palabras[diccionario.elementos++].str, palabra);
 		}
 	}
+
+/*TEST*/for(size_t i=0; i< diccionario.elementos ; i++)
+		puts(diccionario.palabras[i].str );
+
+	puts("jala chido :)");
 /*
 	//ordena las palabras de forma lexicográfica, así las palabras iguales terminan juntas y facilita el conteo
 	//	si el algoritmo de ordenamiento es de complejidad O(nlogn), entonces esto propociona un método eficiente de conteo

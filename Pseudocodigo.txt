@@ -1,0 +1,15 @@
+Leer las palabras del archivo, ignorando signos de puntuación excepto apostrofes e ignorando mayusculas y minusclas, guarda estas palabras en un arreglo de palabras.
+Ordena las palabras de forma lexicográficamente.
+Guarda la primera palabra en el arreglo como la palabra actual.
+Mientras haya palabras sin contar:
+	¿Es la siguiente palabra igual a la actual?
+		Si es el caso:
+			Eleva la cuenta de nuestra palabra.
+		Si no es el caso:
+			Guarda la siguiente palabra como la actuál.
+			Inicia la cuenta de la palabra actuál a uno.
+Ordena las palabras por frecuencia de aparición.
+Escribe las palabras en el archivo de salida.
+FIN.
+
+
