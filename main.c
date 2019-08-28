@@ -7,6 +7,13 @@
 #include <string.h>
 #include <stdbool.h>
 
+typedef char * string;
+typedef struct{
+	string elem;
+	int card;//cardinalidad
+}string_dict_entry;//tipo de dato de las entradas del diccionario, este será un arreglo de dicho tipo
+
+
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //Funciónes sobre FILE*
 FILE *open_file(const char *filename, const char *mode);//funciona como fopen, pero maneja los errores
@@ -17,24 +24,19 @@ int close_file(FILE *fptr);//funciona como fclose, pero maneja los errores
 #define STRING_SIZE 35
 #define STRING_ARR_SIZE 1000
 
-typedef char * string;
-
 string new_string(void);
 void init_stringArr( string arr[], const size_t size);
 void delete_stringArr(string arr[], const size_t size);
-int compare_string(const string s1, const string s2);
+int compare_string(const void* s1, const void* s2);
 void limpia_entrada(string arr[] , size_t size);
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //funciónes sobre dict
 #define DICT_SIZE 500
 
-typedef struct{
-	string palabras[DICT_SIZE];//TODO: pensar en un mejor nombre
-	size_t elementos;
-}dict;
-void dict_init(dict* toinit){ toinit->elementos=0; }
-void dict_sort( dict* diccionario);//TODO
+void init_dict(string_dict_entry* toinit, size_t size );
+void init_dict(string_dict_entry toinit[], size_t size );
+int compare_card_dict( const void* elem1, const void* elem2 );
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -44,7 +46,7 @@ int main()
 	char format_string_input[20];
 	FILE *entrada, *salida;
 	string palabras[STRING_ARR_SIZE];
-	dict diccionario;
+	string_dict_entry diccionario[DICT_SIZE];
 	
 	snprintf(format_string_input, sizeof(format_string_input), "%%%zus", STRING_SIZE-1 );//inicialización de fomato de scanf, así puede leer los strings por el tamaño especificado por el macr STRIG_SIZE
 	printf("Nombre de archivo con extensión: ");
@@ -52,7 +54,7 @@ int main()
 	entrada= open_file(nombre_de_archivo, "r" );
 	salida= open_file("Resultados.txt", "w" );
 	init_stringArr(palabras, STRING_ARR_SIZE);
-	dict_init( &diccionario); 
+	init_dict( diccionario, DICT_SIZE );
 
 		
 	//lee palabras del archivo en un arreglo de strings
@@ -66,7 +68,7 @@ int main()
 	qsort( palabras, STRING_ARR_SIZE, sizeof(palabras[0]), compare_string );
 
 	//cuenta occurrencia de palabras y guarda en una estructura diccionario
-	cuenta_string(palabras, STRING_ARR_SIZE); //TODO
+	diccionario=cuenta_string(palabras, STRING_ARR_SIZE); //TODO
 
 	//ordena el diccionario
 	
@@ -126,22 +128,39 @@ void delete_stringArr(string arr[], const size_t size)
 	for(size_t i=0; i<size; i++)
 		free(arr[i]);
 }
-
-int compare_string(const string s1, const string s2);
+int compare_string(const void *s1, const void *s2)
 //compara lexicográficamente strings, se ṕasa un puntero a esta función a qsort()
 {
-	if( strcmp( s1, s2)>0 )
-		return 1;
-	if( strcmp( s1, s2)<0 )
-		return -1;
-	return 0;
+	int res= strcmp( (string)s1, (string)s2);
+	return (res > 0) ? 1 : (res <0 ) ? 1 : 0;
 }
-
+/*
 void limpia_entrada(string arr[] , size_t size)//TODO
 {
 	for(size_t i=0; i< size ; i++ )
 	{
 		i
 
+*/
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//Funciónes de dict
+
+void init_dict(string_dict_entry toinit[], size_t size )
+//inicializa un arreglo diccionario, los elementos tienen 0 de cardinalidad
+{
+	for(size_t i=0; i<size ; i++ )
+	{
+		toinit[i].elem=new_string();
+		toinit[i].card=0;
+	}
+}
+
+int compare_card_dict( const void* elem1, const void* elem2 )
+//función de comparación de orden lexicográfico, se pasa a qsort()
+{
+	string_dict_entry *val1= (string_dict_entry*)elem1;
+	string_dict_entry *val2= (string_dict_entry*)elem2;
+
+	return (val1->card > val2-> card) ? 1 : (val1->card < val2-> card) ? -1 : 0 ;
+}
 
