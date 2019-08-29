@@ -9,8 +9,8 @@
 #include <stdbool.h>
 
 #define STRING_SIZE 35
-#define STRING_ARR_SIZE 200
-#define DICT_SIZE 500
+#define STRING_ARR_SIZE 1000
+#define DICT_SIZE 331
 
 typedef char * string;
 typedef struct{
@@ -51,7 +51,6 @@ int main()
 	FILE *entrada, *salida;
 	string palabras[STRING_ARR_SIZE];
 	string_dict_entry diccionario[DICT_SIZE];
-	size_t contador;//TODO si es de puntuación, resta
 	
 	//Inicialización
 	snprintf(format_string_input, sizeof(format_string_input), "%%%zus", STRING_SIZE-1 );//inicialización de fomato de scanf, así puede leer los strings por el tamaño especificado por el macr STRIG_SIZE
@@ -70,22 +69,35 @@ int main()
 
 	//limpia la entrada, si es una cadena ilegal de la forma definida en la función, lo guarda como //TODO
 	
-	//ordena las palabras de forma lexicográfica, así las palabras iguales terminan juntas y facilita el conteo
-	qsort( palabras, STRING_ARR_SIZE, sizeof(palabras[0]), compare_string );
+	size_t dict_index=0;
+	string not_to_count=new_string();
+	strcpy( not_to_count, "DO_NOT_COUNT" );
 
-	for(int i; i< numofstrings ; i++)
-		printf("%20s\t%ld\n",palabras[i], strlen(palabras[i]) );
-			
-	//cuenta occurrencia de palabras y guarda en una estructura diccionario
-	contador=cuenta_strings( palabras, STRING_ARR_SIZE, diccionario , DICT_SIZE );
-
+	for(size_t i=0; i< numofstrings ; i++)
+	{
+		//encuentra la siguiente palabra no utilizada y guardala
+		if( strcmp(palabras[i], not_to_count ) )//si es distinto a mi palabra que no se cuenta
+		{
+			assign_dict( &diccionario[dict_index], palabras[i] );
+			for( size_t j=i+1; j< numofstrings ; j++)
+			{
+				if( strcmp(palabras[j], not_to_count) && !strcmp( diccionario[dict_index].elem , palabras[j] ) )
+				//si son iguales, y la cadena es diferente a una cadena mágica que no se cuenta
+				{
+					diccionario[dict_index].card++;//aumenta la cuenta
+					strcpy(palabras[j],not_to_count );//cambia a no contar
+				}
+			}
+		dict_index++;
+		}
+	}
 	//ordena el diccionario
-	qsort(diccionario, contador , sizeof(diccionario[0]) , compare_card_dict );
+	qsort(diccionario, dict_index-1 , sizeof(diccionario[0]) , compare_card_dict );
 	
 	//imprime el diccionario en el archivo de salida
 	
 	fprintf( salida, "%-*s\t Instancias\n",STRING_SIZE, "Palabras");
-	for(size_t i=0; i < contador ; i++)
+	for(size_t i=0; i < dict_index ; i++)
 	{
 		fprintf(salida, "%-*s\t %d\n", STRING_SIZE , diccionario[i].elem, diccionario[i].card );
 	}
@@ -94,14 +106,15 @@ int main()
 	
 	close_file(entrada);
 	close_file(salida);
+	puts("si jala");
 
 	//libera palabras
 	for(size_t i=0; i < STRING_ARR_SIZE ; i++ )
-		free(palabras[i]);
+		free( palabras[i]);
 
 	//libera diccionario
 	for(size_t i=0; i< DICT_SIZE ; i++)
-		free(diccionario[i].elem );
+		free( diccionario[i].elem );
 
 }
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -157,7 +170,6 @@ int compare_string(const void *s1, const void *s2)
 //compara lexicográficamente strings, se ṕasa un puntero a esta función a qsort()
 {
 	int res= strcmp( (string)s1, (string)s2);
-	printf("%30s %d %30s ", 
 	return (res > 0) ? 1 : (res <0 ) ? -1 : 0;
 }
 /*
