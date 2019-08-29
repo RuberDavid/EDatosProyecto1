@@ -28,7 +28,7 @@ string new_string(void);
 void init_stringArr( string arr[], const size_t size);
 void delete_stringArr(string arr[], const size_t size);
 int compare_string(const void* s1, const void* s2);
-void limpia_entrada(string arr[] , size_t size);
+//void limpia_entrada(string arr[] , size_t size);//TODO
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //funciónes sobre dict
@@ -37,6 +37,7 @@ void limpia_entrada(string arr[] , size_t size);
 void init_dict(string_dict_entry* toinit, size_t size );
 void init_dict(string_dict_entry toinit[], size_t size );
 int compare_card_dict( const void* elem1, const void* elem2 );
+size_t cuenta_strings( const string arr[], size_t size_of_tocount, string_dict_entry res[] , size_t size_of_res );
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -47,7 +48,9 @@ int main()
 	FILE *entrada, *salida;
 	string palabras[STRING_ARR_SIZE];
 	string_dict_entry diccionario[DICT_SIZE];
+	size_t contador;//TODO si es de puntuación, resta
 	
+	//Inicialización
 	snprintf(format_string_input, sizeof(format_string_input), "%%%zus", STRING_SIZE-1 );//inicialización de fomato de scanf, así puede leer los strings por el tamaño especificado por el macr STRIG_SIZE
 	printf("Nombre de archivo con extensión: ");
 	scanf("%31s" , nombre_de_archivo );
@@ -68,15 +71,31 @@ int main()
 	qsort( palabras, STRING_ARR_SIZE, sizeof(palabras[0]), compare_string );
 
 	//cuenta occurrencia de palabras y guarda en una estructura diccionario
-	diccionario=cuenta_string(palabras, STRING_ARR_SIZE); //TODO
+	contador=cuenta_strings( palabras, STRING_ARR_SIZE, diccionario , DICT_SIZE );
 
 	//ordena el diccionario
+	qsort(diccionario, contador , sizeof(diccionario[0]) , compare_card_dict );
 	
 	//imprime el diccionario en el archivo de salida
+	
+	fprintf( salida, "%-*s\t Instancias\n",STRING_SIZE, "Palabras");
+	for(size_t i=0; i < contador ; i++)
+	{
+		fprintf(salida, "%-*s\t %u\n", STRING_SIZE , diccionario[i].elem, diccionario[i].card );
+	}
 
 	//cierra aerchivos, destruye variables pertinentes
+	
+	close_file(entrada);
+	close_file(salida);
 
+	//libera palabras
+	for(size_t i=0; i < STRING_ARR_SIZE ; i++ )
+		free(palabras[i]);
 
+	//libera diccionario
+	for(size_t i=0; i< DICT_SIZE ; i++)
+		free(diccionario[i].elem );
 
 }
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -163,4 +182,39 @@ int compare_card_dict( const void* elem1, const void* elem2 )
 
 	return (val1->card > val2-> card) ? 1 : (val1->card < val2-> card) ? -1 : 0 ;
 }
+size_t cuenta_strings( const string arr[], size_t size_of_tocount, string_dict_entry res[] , size_t size_of_res ) 
+// de un arreglo ordenado de string, cuénta las occurrencias de sus elementos y guarda el elemento y su ocurrencia en un arreglo diccionario
+{
+	string current=new_string();
+	size_t next=0,
+	       dict_index=0;
+
+	//guarda la primera cadena
+	strcpy( current, arr[next] );
+
+	//copia en diccionario
+	strcpy( res[dict_index].elem, current ); 
+	res[dict_index].card++;
+
+
+	for( ; next< size_of_tocount && dict_index < size_of_res ; )
+	{
+		next++;//pasa al siguiente
+		//copia en diccionario
+		while( strcmp( current, arr[next] )==0 )
+		{
+			res[dict_index].card++;
+			next++;
+		}
+
+		strcpy( res[dict_index].elem, current ); 
+		strcpy( current, arr[next] );
+		dict_index++ ;
+	}
+
+	return dict_index+1;
+}
+
+
+	
 
