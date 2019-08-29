@@ -7,6 +7,10 @@
 #include <string.h>
 #include <stdbool.h>
 
+#define STRING_SIZE 35
+#define STRING_ARR_SIZE 200
+#define DICT_SIZE 500
+
 typedef char * string;
 typedef struct{
 	string elem;
@@ -21,8 +25,6 @@ int close_file(FILE *fptr);//funciona como fclose, pero maneja los errores
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //Funciónes sobre strings
-#define STRING_SIZE 35
-#define STRING_ARR_SIZE 1000
 
 string new_string(void);
 void init_stringArr( string arr[], const size_t size);
@@ -32,7 +34,6 @@ int compare_string(const void* s1, const void* s2);
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //funciónes sobre dict
-#define DICT_SIZE 500
 
 void init_dict(string_dict_entry* toinit, size_t size );
 void init_dict(string_dict_entry toinit[], size_t size );
@@ -81,7 +82,7 @@ int main()
 	fprintf( salida, "%-*s\t Instancias\n",STRING_SIZE, "Palabras");
 	for(size_t i=0; i < contador ; i++)
 	{
-		fprintf(salida, "%-*s\t %u\n", STRING_SIZE , diccionario[i].elem, diccionario[i].card );
+		fprintf(salida, "%-*s\t %d\n", STRING_SIZE , diccionario[i].elem, diccionario[i].card );
 	}
 
 	//cierra aerchivos, destruye variables pertinentes
@@ -164,7 +165,7 @@ void limpia_entrada(string arr[] , size_t size)//TODO
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //Funciónes de dict
 
-void init_dict(string_dict_entry toinit[], size_t size )
+void init_dict( string_dict_entry toinit[], size_t size )
 //inicializa un arreglo diccionario, los elementos tienen 0 de cardinalidad
 {
 	for(size_t i=0; i<size ; i++ )
@@ -182,6 +183,7 @@ int compare_card_dict( const void* elem1, const void* elem2 )
 
 	return (val1->card > val2-> card) ? 1 : (val1->card < val2-> card) ? -1 : 0 ;
 }
+
 size_t cuenta_strings( const string arr[], size_t size_of_tocount, string_dict_entry res[] , size_t size_of_res ) 
 // de un arreglo ordenado de string, cuénta las occurrencias de sus elementos y guarda el elemento y su ocurrencia en un arreglo diccionario
 {
@@ -194,16 +196,17 @@ size_t cuenta_strings( const string arr[], size_t size_of_tocount, string_dict_e
 
 	//copia en diccionario
 	strcpy( res[dict_index].elem, current ); 
-	res[dict_index].card++;
+	res[dict_index].card+=1;
 
 
-	for( ; next< size_of_tocount && dict_index < size_of_res ; )
+	while(  next< size_of_tocount && dict_index < size_of_res  )
 	{
 		next++;//pasa al siguiente
 		//copia en diccionario
 		while( strcmp( current, arr[next] )==0 )
 		{
-			res[dict_index].card++;
+			puts("jala");
+			res[dict_index].card+=1;
 			next++;
 		}
 
@@ -211,7 +214,6 @@ size_t cuenta_strings( const string arr[], size_t size_of_tocount, string_dict_e
 		strcpy( current, arr[next] );
 		dict_index++ ;
 	}
-
 	return dict_index+1;
 }
 
