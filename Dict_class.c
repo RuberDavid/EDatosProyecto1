@@ -27,6 +27,7 @@ string new_string(void);
 void init_stringArr( string arr[], const size_t size);
 void delete_stringArr(string arr[], const size_t size);
 int compare_string(const void* s1, const void* s2);
+bool asign_dict( string_dict_entry x, string y );
 void limpia_entrada(string arr[] , size_t size);
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -129,3 +130,11 @@ int compare_string(const void *s1, const void *s2)
 	return (res > 0) ? 1 : (res <0 ) ? 1 : 0;
 }
 
+bool asign_dict( string_dict_entry *x, string y )
+{
+	strcpy(x->elem, y);
+	(x->card)++;
+	if( x->card )
+		return true;
+	return false;
+}

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <errno.h> 
 #include <string.h>
+#include <ctype.h>
 #include <stdbool.h>
 
 #define STRING_SIZE 35
@@ -39,6 +40,7 @@ void init_dict(string_dict_entry* toinit, size_t size );
 void init_dict(string_dict_entry toinit[], size_t size );
 int compare_card_dict( const void* elem1, const void* elem2 );
 size_t cuenta_strings( const string arr[], size_t size_of_tocount, string_dict_entry res[] , size_t size_of_res );
+bool assign_dict( string_dict_entry *x, string y );
 
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -71,6 +73,9 @@ int main()
 	//ordena las palabras de forma lexicográfica, así las palabras iguales terminan juntas y facilita el conteo
 	qsort( palabras, STRING_ARR_SIZE, sizeof(palabras[0]), compare_string );
 
+	for(int i; i< numofstrings ; i++)
+		printf("%20s\t%ld\n",palabras[i], strlen(palabras[i]) );
+			
 	//cuenta occurrencia de palabras y guarda en una estructura diccionario
 	contador=cuenta_strings( palabras, STRING_ARR_SIZE, diccionario , DICT_SIZE );
 
@@ -152,15 +157,21 @@ int compare_string(const void *s1, const void *s2)
 //compara lexicográficamente strings, se ṕasa un puntero a esta función a qsort()
 {
 	int res= strcmp( (string)s1, (string)s2);
-	return (res > 0) ? 1 : (res <0 ) ? 1 : 0;
+	printf("%30s %d %30s ", 
+	return (res > 0) ? 1 : (res <0 ) ? -1 : 0;
 }
 /*
-void limpia_entrada(string arr[] , size_t size)//TODO
+void limpia_entrada(string arr , size_t size)//TODO
+//toma una cadena , si contiene signos de puntuación , los borra, mayusculas y minusculas son lo mismo
 {
+	string buffer=new_string();
+
+	
 	for(size_t i=0; i< size ; i++ )
 	{
-		i
-
+		
+	}
+}
 */
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //Funciónes de dict
@@ -195,14 +206,12 @@ size_t cuenta_strings( const string arr[], size_t size_of_tocount, string_dict_e
 	strcpy( current, arr[next] );
 
 	//copia en diccionario
-	strcpy( res[dict_index].elem, current ); 
-	res[dict_index].card+=1;
-
+	assign_dict( &res[dict_index], current );
 
 	while(  next< size_of_tocount && dict_index < size_of_res  )
 	{
 		next++;//pasa al siguiente
-		//copia en diccionario
+		//cuenta repeticiónes
 		while( strcmp( current, arr[next] )==0 )
 		{
 			puts("jala");
@@ -210,13 +219,19 @@ size_t cuenta_strings( const string arr[], size_t size_of_tocount, string_dict_e
 			next++;
 		}
 
-		strcpy( res[dict_index].elem, current ); 
+		assign_dict( &res[dict_index], current );
+		//strcpy( res[dict_index].elem, current ); 
 		strcpy( current, arr[next] );
 		dict_index++ ;
 	}
 	return dict_index+1;
 }
 
-
-	
-
+bool assign_dict( string_dict_entry *x, string y )
+{
+	strcpy(x->elem, y);
+	(x->card)++;
+	if( x->card )
+		return true;
+	return false;
+}
